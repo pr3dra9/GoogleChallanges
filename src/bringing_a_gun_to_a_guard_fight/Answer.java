@@ -5,6 +5,8 @@
  */
 package bringing_a_gun_to_a_guard_fight;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Predrag
@@ -25,7 +27,7 @@ public class Answer {
                 return Math.sqrt((this.x - p.x) * (this.x - p.x) + (this.y - p.y) * (this.y - p.y));
             }
             
-            public boolean isOnLine(Point p1, Point p2) {
+            public boolean isOnLineSegment(Point p1, Point p2) {
                 if (p1.x > x && p2.x > x ) {
                     return false;
                 }
@@ -47,37 +49,117 @@ public class Answer {
                 return this.y - p1.y == (p2.y - p1.y) / (p2.x - p1.x) * this.x- p1.x;
             }
 
+            public boolean isOnLine(Point p1, Point p2) {
+                if (this.x == p1.x && this.x == p2.x) {
+                    return true;
+                }                
+                if (this.y == p1.y && this.y == p2.y) {
+                    return true;
+                }
+                return this.y - p1.y == (p2.y - p1.y) / (p2.x - p1.x) * this.x- p1.x;
+            }
         }
 
+        Point captain = new Point(captain_position[0], captain_position[1]);
+        Point badguy = new Point(badguy_position[0], badguy_position[1]);
+        
+        ArrayList<Integer> xCoordinates = new ArrayList<>();
+        ArrayList<Integer> yCoordinates = new ArrayList<>();
+        
         int dy = dimensions[1] - badguy_position[1];
         int dx = dimensions[0] - badguy_position[0];
 
-        int maxUp = 0;
-        int maxLeft = 0;
-        int maxRight = 0;
-        int maxDown = 0;
-        Point captain = new Point(captain_position[0], captain_position[1]);
+        int counter = 0;
         
+        if (captain.distanceTo(badguy) <= distance) {
+            counter++;
+        }
+        
+        int maxUp = 0;
         while (true) {
-            int d = badguy_position[1] + (int) (Math.pow(2, maxUp/2 + 1) * dy + (maxUp + 1) / 2 * 2 * (dimensions[1] - dy));
-            Point cp = new Point(dimensions[0], d);
+            int newY = badguy_position[1] + (2 * (maxUp / 2 + 1) * dy + 2 * ((maxUp + 1) / 2) * (dimensions[1] - dy));
+            Point cp = new Point(dimensions[0], newY);
             if (cp.distanceTo(captain) > distance) {
                 break;
             }
-            System.out.println(d);
+            yCoordinates.add(newY);
+            if (captain.x == badguy.x) {
+                break;
+            }
+            //System.out.println(d);
+            counter++;
             maxUp++;
         }
         
-        Point p = new Point(1,1);
-        Point p1 = new Point(2,1);
-        Point p2 = new Point(3,1);
+        int maxDown = 0;
+        while (true) {          
+            int newY = badguy_position[1] - (2 * (maxDown / 2 + 1) * (dimensions[1] - dy) + 2 * ((maxDown + 1) / 2) * dy);
+            Point cp = new Point(dimensions[0], newY);
+            if (cp.distanceTo(captain) > distance) {
+                break;
+            }
+            yCoordinates.add(newY);
+            if (captain.x == badguy.x) {
+                break;
+            }              
+            //System.out.println(d);
+            counter++;
+            maxDown++;
+        }
+
+        int maxRight = 0;
+        while (true) {
+
+            int newX = badguy_position[0] + (2 * (maxRight / 2 + 1) * dx + 2 * ((maxRight + 1) / 2) * (dimensions[0] - dx));
+            Point cp = new Point(newX, dimensions[1]);
+            if (cp.distanceTo(captain) > distance) {
+                break;
+            }
+            xCoordinates.add(newX);
+            //System.out.println(newX);
+            if (captain.y == badguy.y) {
+                break;
+            }            
+            counter++;
+            maxRight++;
+        }
         
-        //System.out.println(p1.isOnLine(p, p2));
+        int maxLeft = 0;
+        while (true) {           
+            int newX = badguy_position[0] - (2 * (maxLeft / 2 + 1) * (dimensions[0] - dx) + 2 * ((maxLeft + 1) / 2) * dx);
+            Point cp = new Point(newX, dimensions[1]);
+            if (cp.distanceTo(captain) > distance) {
+                break;
+            }
+            xCoordinates.add(newX);
+            //System.out.println(newX);
+            if (captain.y == badguy.y) {
+                break;
+            }
+            counter++;
+            maxLeft++;
+        }
         
-        return 0;
+        for (Integer yCoordinate : yCoordinates) {
+            for (Integer xCoordinate : xCoordinates) {
+                Point point = new Point(xCoordinate, yCoordinate);
+                if (point.distanceTo(captain) <= distance) { // && !point.isOnLine(captain, badguy)
+                    counter++;
+                }
+            }
+        }
+        /*
+        Point p = new Point(3,3);
+        Point p1 = new Point(5,-3);
+        Point p2 = new Point(7,-7);
+        
+        System.out.println(p1.isOnLineSegment(p, p2));
+        */
+        //System.out.println(counter);
+        return counter;
     }
     
     public static void main(String[] args) {
-        answer(new int[] {5,5}, new int[] {1,1}, new int[] {1,4}, 50);
+        answer(new int[] {300, 275}, new int[] {150, 150}, new int[] {185, 100}, 500);
     }
 }
